@@ -1,0 +1,48 @@
+{
+  "targets": [{
+    "target_name": "v4l2camera", 
+    "sources": ["omxcv_jpeg.cpp", "omxcv.cpp", "gl_transform.cc", "capture.c", "vrcam.cc", "v4l2camera.cc"],
+    "cflags": ["-Wall", "-Wextra", "-pedantic"],
+    "cflags_c": ["-std=c11", "-Wno-unused-parameter"], 
+    "cflags_cc": ["-std=c++11", "-fexceptions"],
+    'include_dirs': [
+                    "./include",
+                    "/opt/vc/include",
+                    "/opt/vc/src/hello_pi/libs/ilclient",
+                    "/opt/vc/include/interface/vcos/pthreads",
+                    "/opt/vc/include/IL",
+                    "/opt/vc/include/interface/vmcs_host/linux",
+                    "/opt/vc/lib",
+                    "/opt/vc/src/hello_pi/libs/ilclient"
+                    ],
+	'libraries': [
+					"-L/opt/vc/lib",
+					"-L/opt/vc/src/hello_pi/libs/ilclient",
+					"-lopencv_videostab",
+					"-lopencv_ts",
+					"-lopencv_superres",
+					"-lopencv_stitching",
+					"-lopencv_ocl",
+					"-lopencv_gpu",
+					"-lopencv_photo",
+					"-lopencv_legacy",
+					"-lopencv_contrib",
+					"-lopencv_video",
+					"-lopencv_objdetect",
+					"-lopencv_ml",
+					"-lopencv_calib3d",
+					"-lopencv_features2d",
+					"-lopencv_highgui",
+					"-lopencv_imgproc",
+					"-lopencv_flann",
+					"-lopencv_core",
+					"-lbcm_host",
+					"-lilclient",
+					"-lopenmaxil",
+					"-lEGL",
+					"-lGLESv2",
+					"-lavformat",
+					"-lavcodec",
+					"-lavutil"]
+  }]
+}
