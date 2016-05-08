@@ -66,39 +66,14 @@ int AddFrame(int width, int height, int stride,
 	if (recorder == NULL)
 		return -1;
 
-	cv::Mat raw_image(TEXURE_HEIGHT, TEXURE_WIDTH, CV_8UC(stride / width));
+	int raw_image_width = width;
+	int raw_image_height = height * 2;
+	cv::Mat raw_image(raw_image_height, raw_image_width, CV_8UC(stride / width));
 	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
 
-	if (TEXURE_WIDTH == width && TEXURE_HEIGHT/2 == height) {
-		memcpy(raw_image.data, imagedata1, stride * height);
+	memcpy(raw_image.data, imagedata1, stride * height);
+	if(imagedata2 != NULL)
 		memcpy(raw_image.data + stride * height, imagedata2, stride * height);
-	} else {
-//		int xoffset = (TEXURE_WIDTH - width) / 2;
-//		int yoffset = (TEXURE_HEIGHT - height) / 2;
-//		unsigned char *src_cur;
-//		unsigned char *des_cur;
-//		{
-//			src_cur = (unsigned char *) imagedata1;
-//			des_cur = (unsigned char *) (raw_image.data
-//					+ yoffset * raw_image.step + xoffset * raw_image.elemSize());
-//			for (int y = 0; y < height; y++) {
-//				memcpy(des_cur, src_cur, stride);
-//				src_cur += stride;
-//				des_cur += raw_image.step;
-//			}
-//		}
-//		{
-//			src_cur = (unsigned char *) imagedata2;
-//			des_cur = (unsigned char *) (raw_image.data
-//					+ stride * height + imagedata2 + yoffset * raw_image.step
-//					+ xoffset * raw_image.elemSize());
-//			for (int y = 0; y < height; y++) {
-//				memcpy(des_cur, src_cur, stride);
-//				src_cur += stride;
-//				des_cur += raw_image.step;
-//			}
-//		}
-	}
 
 	transformer.Transform(raw_image, vr_image);
 	recorder->Encode(vr_image);
@@ -113,7 +88,9 @@ int SaveJpegAsEquirectangular(int width, int height, int stride,
 
 	if (TEXURE_WIDTH == width && TEXURE_HEIGHT/2 == height) {
 		memcpy(raw_image.data, imagedata1, stride * height);
-		memcpy(raw_image.data + stride * height, imagedata2, stride * height);
+		if(imagedata2 != NULL) {
+			memcpy(raw_image.data + stride * height, imagedata2, stride * height);
+		}
 	} else {
 //		int xoffset = (TEXURE_WIDTH - width) / 2;
 //		int yoffset = (TEXURE_HEIGHT - height) / 2;

@@ -1,5 +1,5 @@
 #include "capture.h"
-#include "vrcam.h"
+#include "picam360_tools.h"
 #include <node.h>
 #include <v8.h>
 #include <uv.h>
