@@ -2,7 +2,7 @@
  * @file omxcv-test.cpp
  * @brief Simple testing application for omxcv.
  */
-#include "vrcam.h"
+#include "picam360_tools.h"
 #include "omxcv.h"
 #include "gl_transform.h"
 #include <opencv2/opencv.hpp>
@@ -12,16 +12,10 @@
 #include <chrono>
 #include <thread>
 
-//#define CAMERA_WIDTH  1296
-//#define CAMERA_HEIGHT 972
 //#define TEXURE_WIDTH  1296//2048
 //#define TEXURE_HEIGHT 1944//2048
-//#define CAMERA_WIDTH  1312
-//#define CAMERA_HEIGHT 976
 //#define TEXURE_WIDTH  1312
 //#define TEXURE_HEIGHT 1952
-#define CAMERA_WIDTH  640
-#define CAMERA_HEIGHT 480
 #define TEXURE_WIDTH  640
 #define TEXURE_HEIGHT 960#define EQUIRECTANGULAR_WIDTH  1024#define EQUIRECTANGULAR_HEIGHT 512#define MMAP_COUNT    2
 #define PICTURE_NUM   10

@@ -1,5 +1,5 @@
-#ifndef VRCAM_H
-#define VRCAM_H
+#ifndef PICAM360_TOOLS_H
+#define PICAM360_TOOLS_H
 
 
 #ifdef __cplusplus
