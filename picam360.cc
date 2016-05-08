@@ -485,4 +485,4 @@ void Camera::Init(v8::Handle<v8::Object> exports) {
 	exports->Set(name, ctor);
 }
 }
-NODE_MODULE(v4l2camera, Camera::Init)
+NODE_MODULE(picam360, Camera::Init)
