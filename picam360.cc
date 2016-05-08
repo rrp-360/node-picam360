@@ -368,11 +368,16 @@ v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args)
 	v8::HandleScope scope;
 	auto thisObj = args.This();
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	if (args.Length() < 2)
+	if (args.Length() < 1) {
 		throwTypeError("argument required: filename");
-	auto camera2 = node::ObjectWrap::Unwrap < Camera > (args[0]->ToObject())->camera;
-	v8::String::AsciiValue filename(args[1]->ToString());
-	SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, camera2->head.start, *filename);
+	}
+	v8::String::AsciiValue filename(args[0]->ToString());
+	if (args.Length() == 1) {
+		SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, NULL, *filename);
+	} else {
+		auto camera2 = node::ObjectWrap::Unwrap < Camera > (args[1]->ToObject())->camera;
+		SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, camera2->head.start, *filename);
+	}
 	return scope.Close(thisObj);
 }
 
