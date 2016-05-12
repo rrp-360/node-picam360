@@ -16,8 +16,21 @@
 //#define TEXURE_HEIGHT 1944//2048
 //#define TEXURE_WIDTH  1312
 //#define TEXURE_HEIGHT 1952
-#define TEXURE_WIDTH  640
-#define TEXURE_HEIGHT 960#define EQUIRECTANGULAR_WIDTH  1024#define EQUIRECTANGULAR_HEIGHT 512#define MMAP_COUNT    2
+//#define TEXURE_WIDTH  960
+//#define TEXURE_HEIGHT 1440
+//#define TEXURE_WIDTH  1376
+//#define TEXURE_HEIGHT 1024
+//#define TEXURE_WIDTH  1664
+//#define TEXURE_HEIGHT 1232
+#define TEXURE_WIDTH  1248
+#define TEXURE_HEIGHT 1232
+//#define EQUIRECTANGULAR_WIDTH  1024
+//#define EQUIRECTANGULAR_HEIGHT 512
+//#define EQUIRECTANGULAR_WIDTH  1440
+//#define EQUIRECTANGULAR_HEIGHT 720
+#define EQUIRECTANGULAR_WIDTH  2048
+#define EQUIRECTANGULAR_HEIGHT 1024
+#define MMAP_COUNT    2
 #define PICTURE_NUM   10
 
 #define TIMEDIFF(start) (duration_cast<microseconds>(steady_clock::now() - start).count())
@@ -66,14 +79,13 @@ int AddFrame(int width, int height, int stride,
 	if (recorder == NULL)
 		return -1;
 
-	int raw_image_width = width;
-	int raw_image_height = height * 2;
-	cv::Mat raw_image(raw_image_height, raw_image_width, CV_8UC(stride / width));
+	cv::Mat raw_image(TEXURE_HEIGHT, TEXURE_WIDTH, CV_8UC(stride / width));
 	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
 
 	memcpy(raw_image.data, imagedata1, stride * height);
-	if(imagedata2 != NULL)
-		memcpy(raw_image.data + stride * height, imagedata2, stride * height);
+	//if(imagedata2 != NULL) {
+	//	memcpy(raw_image.data + stride * height, imagedata2, stride * height);
+	//}
 
 	transformer.Transform(raw_image, vr_image);
 	recorder->Encode(vr_image);
@@ -86,11 +98,11 @@ int SaveJpegAsEquirectangular(int width, int height, int stride,
 	cv::Mat raw_image(TEXURE_HEIGHT, TEXURE_WIDTH, CV_8UC(stride / width));
 	cv::Mat vr_image(EQUIRECTANGULAR_HEIGHT, EQUIRECTANGULAR_WIDTH, CV_8UC(3));
 
-	if (TEXURE_WIDTH == width && TEXURE_HEIGHT/2 == height) {
+	if (TEXURE_WIDTH == width && TEXURE_HEIGHT == height) {
 		memcpy(raw_image.data, imagedata1, stride * height);
-		if(imagedata2 != NULL) {
-			memcpy(raw_image.data + stride * height, imagedata2, stride * height);
-		}
+		//if(imagedata2 != NULL) {
+		//	memcpy(raw_image.data + stride * height, imagedata2, stride * height);
+		//}
 	} else {
 //		int xoffset = (TEXURE_WIDTH - width) / 2;
 //		int yoffset = (TEXURE_HEIGHT - height) / 2;

@@ -359,8 +359,12 @@ v8::Handle<v8::Value> Camera::AddFrame(const v8::Arguments& args) {
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
 	if (args.Length() < 1)
 		throwTypeError("argument required: camera2");
-	auto camera2 = node::ObjectWrap::Unwrap < Camera > (args[0]->ToObject())->camera;
-	::AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start, camera2->head.start);
+	if (args.Length() == 1) {
+		::AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start, NULL);
+	} else {
+		auto camera2 = node::ObjectWrap::Unwrap < Camera > (args[0]->ToObject())->camera;
+		::AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start, camera2->head.start);
+	}
 	return scope.Close(thisObj);
 }
 
