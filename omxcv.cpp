@@ -95,9 +95,9 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 	def.format.video.nStride = m_stride;
 	def.format.video.eColorFormat = OMX_COLOR_Format24bitBGR888; //OMX_COLOR_Format32bitABGR8888;//OMX_COLOR_FormatYUV420PackedPlanar;
 	//Must be manually defined to ensure sufficient size if stride needs to be rounded up to multiple of 32.
-	def.nBufferSize = def.format.video.nStride * def.format.video.nSliceHeight;
-	//We allocate 6 input buffers.
-	def.nBufferCountActual = 6;
+	def.nBufferSize = 256 * 1024;
+	//allocate input buffers.
+	def.nBufferCountActual = (def.format.video.nStride * def.format.video.nSliceHeight - 1) / def.nBufferSize + 1;
 
 	ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
 			OMX_IndexParamPortDefinition, &def);
@@ -279,7 +279,7 @@ bool OmxCvImpl::write_data(OMX_BUFFERHEADERTYPE *out, int64_t timestamp) {
 		return true;
 	} else {
 		printf("write data : return false\n");
-		return true;
+		return false;
 	}
 }
 
@@ -298,7 +298,7 @@ bool OmxCvImpl::process(const cv::Mat &mat) {
 
 	assert(mat.cols == m_width && mat.rows == m_height);
 	auto now = steady_clock::now();
-	memcpy(in->pBuffer, mat.data, m_stride * m_height);
+	memcpy(in->pBuffer, mat.data, in->nBufferSize);
 	//BGR2RGB(mat, in->pBuffer, m_stride);
 	in->nFilledLen = in->nAllocLen;
 
