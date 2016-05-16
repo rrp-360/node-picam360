@@ -66,7 +66,7 @@ namespace omxcv {
             OmxCvImpl(const char *name, int width, int height, int bitrate, int fpsnum=-1, int fpsden=-1);
             virtual ~OmxCvImpl();
 
-            bool process(const cv::Mat &mat);
+            bool process(const unsigned char *in_data);
         private:
             int m_width, m_height, m_stride, m_bitrate, m_fpsnum, m_fpsden;
 
@@ -95,7 +95,7 @@ namespace omxcv {
             OmxCvJpegImpl(int width, int height, int quality=90);
             virtual ~OmxCvJpegImpl();
             
-            bool process(const char *filename, const cv::Mat &mat);
+            bool process(const char *filename, const unsigned char *in_data);
         private:
             int m_width, m_height, m_stride, m_quality;
             

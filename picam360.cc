@@ -10,6 +10,9 @@
 #include <string>
 #include <sstream>
 
+#define MAX_WIDTH 1024*4;
+#define MAX_HEIGHT 1024*4;
+
 namespace {
 struct CallbackData {
 	v8::Persistent<v8::Object> thisObj;
@@ -26,11 +29,10 @@ private:
 	static v8::Handle<v8::Value> StartRecord(const v8::Arguments& args);
 	static v8::Handle<v8::Value> StopRecord(const v8::Arguments& args);
 	static v8::Handle<v8::Value> Capture(const v8::Arguments& args);
-	static v8::Handle<v8::Value> ToYUYV(const v8::Arguments& args);
-	static v8::Handle<v8::Value> ToRGB(const v8::Arguments& args);
-	static v8::Handle<v8::Value> ToJpegAsEquirectangular(const v8::Arguments& args);
+	static v8::Handle<v8::Value> ToJpeg(const v8::Arguments& args);
 	static v8::Handle<v8::Value> AddFrame(const v8::Arguments& args);
 	static v8::Handle<v8::Value> SetRotation(const v8::Arguments& args);
+	static v8::Handle<v8::Value> SetImageSize(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ConfigGet(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ConfigSet(const v8::Arguments& args);
 	static v8::Handle<v8::Value> ControlGet(const v8::Arguments& args);
@@ -48,6 +50,9 @@ private:
 	Camera();
 	~Camera();
 	camera_t* camera;
+	unsigned char *image_buffer;
+	int image_width;
+	int image_height;
 };
 
 //[error message handling]
@@ -319,6 +324,7 @@ void Camera::CaptureCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
 		v8::Local<v8::Value> argv[] = {
 			v8::Local<v8::Value>::New(v8::Boolean::New(captured)),
 		};
+		TransformToEquirectangular(camera->width, camera->height, image_width, image_height, camera->head.start, image_buffer);
 		data->callback->Call(thisObj, 1, argv);
 	};
 	WatchCB(handle, callCallback);
@@ -327,48 +333,15 @@ v8::Handle<v8::Value> Camera::Capture(const v8::Arguments& args) {
 	return Watch(args, CaptureCB);
 }
 
-v8::Handle<v8::Value> Camera::ToYUYV(const v8::Arguments& args) {
-	v8::HandleScope scope;
-	auto thisObj = args.This();
-	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	int size = camera->width * camera->height * 2;
-	auto ret = v8::Array::New(size);
-	for (int i = 0; i < size; i++) {
-		ret->Set(i, v8::Integer::NewFromUnsigned(camera->head.start[i]));
-	}
-	return scope.Close(ret);
-}
-
-v8::Handle<v8::Value> Camera::ToRGB(const v8::Arguments& args) {
-	v8::HandleScope scope;
-	auto thisObj = args.This();
-	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	auto rgb = yuyv2rgb(camera->head.start, camera->width, camera->height);
-	int size = camera->width * camera->height * 3;
-	auto ret = v8::Array::New(size);
-	for (int i = 0; i < size; i++) {
-		ret->Set(i, v8::Integer::NewFromUnsigned(rgb[i]));
-	}
-	free(rgb);
-	return scope.Close(ret);
-}
-
 v8::Handle<v8::Value> Camera::AddFrame(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	if (args.Length() < 1)
-		throwTypeError("argument required: camera2");
-	if (args.Length() == 1) {
-		::AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start, NULL);
-	} else {
-		auto camera2 = node::ObjectWrap::Unwrap < Camera > (args[0]->ToObject())->camera;
-		::AddFrame(camera->width, camera->height, camera->width * 3, camera->head.start, camera2->head.start);
-	}
+	::AddFrame(image_buffer);
 	return scope.Close(thisObj);
 }
 
-v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args) {
+v8::Handle<v8::Value> Camera::ToJpeg(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
 	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
@@ -377,10 +350,7 @@ v8::Handle<v8::Value> Camera::ToJpegAsEquirectangular(const v8::Arguments& args)
 	}
 	v8::String::AsciiValue filename(args[0]->ToString());
 	if (args.Length() == 1) {
-		SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, NULL, *filename);
-	} else {
-		auto camera2 = node::ObjectWrap::Unwrap < Camera > (args[1]->ToObject())->camera;
-		SaveJpegAsEquirectangular(camera->width, camera->height, camera->width * 3, camera->head.start, camera2->head.start, *filename);
+		::SaveJpeg(image_buffer, *filename);
 	}
 	return scope.Close(thisObj);
 }
@@ -395,6 +365,17 @@ v8::Handle<v8::Value> Camera::SetRotation(const v8::Arguments& args) {
 	float y_deg = args[1]->NumberValue();
 	float z_deg = args[2]->NumberValue();
 	::SetRotation(x_deg, y_deg, z_deg);
+	return scope.Close(thisObj);
+}
+
+v8::Handle<v8::Value> Camera::SetImageSize(const v8::Arguments& args) {
+	v8::HandleScope scope;
+	auto thisObj = args.This();
+	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
+	if (args.Length() < 2)
+		throwTypeError("argument required: image size");
+	image_width = (int)args[0]->NumberValue();
+	image_height = (int)args[1]->NumberValue();
 	return scope.Close(thisObj);
 }
 
@@ -482,16 +463,23 @@ void Camera::Init(v8::Handle<v8::Object> exports) {
 	setMethod(proto, "stopRecord", StopRecord);
 	setMethod(proto, "addFrame", AddFrame);
 	setMethod(proto, "capture", Capture);
-	setMethod(proto, "toYUYV", ToYUYV);
-	setMethod(proto, "toRGB", ToRGB);
-	setMethod(proto, "toJpegAsEquirectangular", ToJpegAsEquirectangular);
+	setMethod(proto, "toJpeg", ToJpeg);
 	setMethod(proto, "setRotation", SetRotation);
+	setMethod(proto, "setImageSize", SetImageSize);
 	setMethod(proto, "configGet", ConfigGet);
 	setMethod(proto, "configSet", ConfigSet);
 	setMethod(proto, "controlGet", ControlGet);
 	setMethod(proto, "controlSet", ControlSet);
 	auto ctor = v8::Local < v8::Function > ::New(clazz->GetFunction());
 	exports->Set(name, ctor);
+
+	image_buffer = (unsigned char*)malloc(MAX_WIDTH * MAX_HEIGHT * 3);
+	if(image_buffer == NULL){
+		perror("error on malloc");
+		return -1;
+	}
+	image_width = 1024;
+	image_height = 512;
 }
 }
 NODE_MODULE(picam360, Camera::Init)

@@ -6,7 +6,7 @@
 #ifndef _GLRENDERER_H
 #define _GLRENDERER_H
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
@@ -56,7 +56,7 @@ public:
 	GLTransform(int width, int height, int tex_width, int tex_height);
 	virtual ~GLTransform();
 
-	void Transform(const cv::Mat &in, cv::Mat &out);
+	void Transform(const unsigned char *in_data, unsigned char *out_Data);
 	void SetRotation(float x_deg, float y_deg, float z_deg);
 
 private:

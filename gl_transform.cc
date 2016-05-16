@@ -134,13 +134,13 @@ void GLTransform::SetRotation(float x_deg, float y_deg, float z_deg) {
 	m_z_deg = z_deg;
 }
 
-void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
+void GLTransform::Transform(const unsigned char *in_data, unsigned char *out_Data) {
 	float x_rad = m_x_deg * M_PI / 180.0;
 	float y_rad = m_y_deg * M_PI / 180.0;
 	float z_rad = m_z_deg * M_PI / 180.0;
 
 	//Load the data into a texture.
-	m_texture->SetData(in.data);
+	m_texture->SetData(in_data);
 
 	//Blank the display
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer_id);
@@ -198,7 +198,7 @@ void GLTransform::Transform(const cv::Mat &in, cv::Mat &out) {
 
 	glFinish();
 
-	this->GetRenderedData(out.data);
+	this->GetRenderedData(out_Data);
 
 //    {
 //    FILE *fp = fopen("/tmp/in.rgb", "wb");

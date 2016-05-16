@@ -288,7 +288,7 @@ bool OmxCvImpl::write_data(OMX_BUFFERHEADERTYPE *out, int64_t timestamp) {
  * @param [in] mat The mat to be encoded.
  * @return true iff enqueued.
  */
-bool OmxCvImpl::process(const cv::Mat &mat) {
+bool OmxCvImpl::process(const unsigned char *in_data) {
 	OMX_BUFFERHEADERTYPE *in = ilclient_get_input_buffer(m_encoder_component,
 	OMX_ENCODE_PORT_IN, 0);
 	if (in == NULL) {
@@ -296,9 +296,8 @@ bool OmxCvImpl::process(const cv::Mat &mat) {
 		return false;
 	}
 
-	assert(mat.cols == m_width && mat.rows == m_height);
 	auto now = steady_clock::now();
-	memcpy(in->pBuffer, mat.data, m_stride * m_height);
+	memcpy(in->pBuffer, in_data, m_stride * m_height);
 	//BGR2RGB(mat, in->pBuffer, m_stride);
 	in->nFilledLen = in->nAllocLen;
 
@@ -341,6 +340,6 @@ OmxCv::~OmxCv() {
  * @param [in] in Image to be encoded.
  * @return true iff the image was encoded.
  */
-bool OmxCv::Encode(const cv::Mat &in) {
-	return m_impl->process(in);
+bool OmxCv::Encode(const unsigned char *in_data) {
+	return m_impl->process(in_data);
 }

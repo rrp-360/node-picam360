@@ -171,7 +171,7 @@ void OmxCvJpegImpl::input_worker() {
  * @return true iff the image will be saved. Will return false if there's no
  *         free input buffer.
  */
-bool OmxCvJpegImpl::process(const char *filename, const cv::Mat &mat) {
+bool OmxCvJpegImpl::process(const char *filename, const unsigned char *in_data) {
     //static const std::vector<int> saveparams = {CV_IMWRITE_JPEG_QUALITY, 75};
     //cv::imwrite(filename, mat, saveparams);
     OMX_BUFFERHEADERTYPE *in = ilclient_get_input_buffer(
@@ -180,8 +180,7 @@ bool OmxCvJpegImpl::process(const char *filename, const cv::Mat &mat) {
         return false;
     }
 
-    assert(mat.cols == m_width && mat.rows == m_height);
-    memcpy(in->pBuffer, mat.data, m_stride * m_height);
+    memcpy(in->pBuffer, in_data, m_stride * m_height);
     //BGR2RGB(mat, in->pBuffer, m_stride);
     in->nFilledLen = in->nAllocLen;
 
@@ -224,21 +223,10 @@ OmxCvJpeg::~OmxCvJpeg() {
  * @param [in] in Image to be encoded. If the width and height of this
  *                image does not match what was set in the constructor,
  *                this function will fallback to using OpenCV's imwrite.
- * @param [in] fallback If set to true and there is no available buffer for
- * encoding, fallback to using OpenCV to write out the image.
  * @return true iff the file was encoded.
  */
-bool OmxCvJpeg::Encode(const char *filename, const cv::Mat &in, bool fallback) {
-    if (in.cols != m_width || in.rows != m_height || in.type() != CV_8UC3) {
-        std::vector<int> params {CV_IMWRITE_JPEG_QUALITY, m_quality};
-        return cv::imwrite(filename, in, params);
-    }
-
-    bool ret = m_impl->process(filename, in);
-    if (!ret && fallback) {
-        std::vector<int> params {CV_IMWRITE_JPEG_QUALITY, m_quality};
-        return cv::imwrite(filename, in, params);
-    }
+bool OmxCvJpeg::Encode(const char *filename, const unsigned char *in_data) {
+    bool ret = m_impl->process(filename, in_data);
     return ret;
 }
 

@@ -20,7 +20,7 @@ namespace omxcv {
     class OmxCv {
         public:
             OmxCv(const char *name, int width, int height, int bitrate=3000, int fpsnum=25, int fpsden=1);
-            bool Encode(const cv::Mat &in);
+            bool Encode(const unsigned char *in_data);
             virtual ~OmxCv();
         private:
             OmxCvImpl *m_impl;
@@ -32,7 +32,7 @@ namespace omxcv {
      class OmxCvJpeg {
          public:
             OmxCvJpeg(int width, int height, int quality=90);
-            bool Encode(const char *filename, const cv::Mat &in, bool fallback=false);
+            bool Encode(const char *filename, const unsigned char *in_data);
             virtual ~OmxCvJpeg();
          private:
             OmxCvJpegImpl *m_impl;

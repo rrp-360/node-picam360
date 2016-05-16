@@ -6,12 +6,13 @@
 extern "C" {
 #endif
 
+int TransformToEquirectangular(int texture_width, texture_height,
+		equirectangular_width, equirectangular_height,
+		const unsigned char *in_data, unsigned char *out_data);
 int StartRecord(const char *filename, int bitrate_kbps);
 int StopRecord();
-int AddFrame(int width, int height, int stride,
-		const unsigned char *imagedata1, const unsigned char *imagedata2);
-int SaveJpegAsEquirectangular(int width, int height, int stride,
-		const unsigned char *imagedata1, const unsigned char *imagedata2, const char *out_filename);
+int AddFrame(const unsigned char *in_data);
+int SaveJpeg(const unsigned char *in_data, const char *out_filename);
 int SetRotation(float x_deg, float y_deg, float z_deg);
 
 #ifdef __cplusplus
