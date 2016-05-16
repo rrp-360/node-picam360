@@ -67,7 +67,7 @@ int TransformToEquirectangular(int texture_width, int texture_height,
 				EQUIRECTANGULAR_HEIGHT, TEXURE_WIDTH, TEXURE_HEIGHT);
 	}
 	transformer->SetRotation(X_DEG, Y_DEG, Z_DEG);
-	transformer->Transform(in_data, out_imagedata);
+	transformer->Transform(in_data, out_data);
 
 	return 0;
 }
@@ -101,7 +101,7 @@ int AddFrame( const unsigned char *in_data) {
 
 int SaveJpeg(const unsigned char *in_data, const char *out_filename) {
 	if (out_filename != NULL) {
-		if (encoder.Encode(out_filename, in_data)) {
+		if (encoder->Encode(out_filename, in_data)) {
 		} else {
 			perror("error on jpeg encode");
 			return -1;
