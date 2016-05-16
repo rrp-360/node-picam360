@@ -345,21 +345,23 @@ v8::Handle<v8::Value> Camera::Capture(const v8::Arguments& args) {
 v8::Handle<v8::Value> Camera::AddFrame(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
-	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
-	::AddFrame(image_buffer);
+	auto self = node::ObjectWrap::Unwrap<Camera>(thisObj);
+	auto camera = self->camera;
+	::AddFrame(self->image_buffer);
 	return scope.Close(thisObj);
 }
 
 v8::Handle<v8::Value> Camera::ToJpeg(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
-	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
+	auto self = node::ObjectWrap::Unwrap<Camera>(thisObj);
+	auto camera = self->camera;
 	if (args.Length() < 1) {
 		throwTypeError("argument required: filename");
 	}
 	v8::String::AsciiValue filename(args[0]->ToString());
 	if (args.Length() == 1) {
-		::SaveJpeg(image_buffer, *filename);
+		::SaveJpeg(self->image_buffer, *filename);
 	}
 	return scope.Close(thisObj);
 }
