@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-int TransformToEquirectangular(int texture_width, texture_height,
-		equirectangular_width, equirectangular_height,
+int TransformToEquirectangular(int texture_width, int texture_height,
+		int equirectangular_width, int equirectangular_height,
 		const unsigned char *in_data, unsigned char *out_data);
 int StartRecord(const char *filename, int bitrate_kbps);
 int StopRecord();

@@ -140,7 +140,7 @@ void GLTransform::Transform(const unsigned char *in_data, unsigned char *out_Dat
 	float z_rad = m_z_deg * M_PI / 180.0;
 
 	//Load the data into a texture.
-	m_texture->SetData(in_data);
+	m_texture->SetData((void*)in_data);
 
 	//Blank the display
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer_id);

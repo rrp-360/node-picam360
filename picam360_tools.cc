@@ -41,8 +41,8 @@ static OmxCvJpeg *encoder = NULL;
 static GLTransform *transformer = NULL;
 static OmxCv *recorder = NULL;
 
-int TransformToEquirectangular(int texture_width, texture_height,
-		equirectangular_width, equirectangular_height,
+int TransformToEquirectangular(int texture_width, int texture_height,
+		int equirectangular_width, int equirectangular_height,
 		const unsigned char *in_data, unsigned char *out_data) {
 
 	if (texture_width != TEXURE_WIDTH || texture_height != TEXURE_HEIGHT
