@@ -10,8 +10,8 @@
 #include <string>
 #include <sstream>
 
-#define MAX_WIDTH 1024*4;
-#define MAX_HEIGHT 1024*4;
+#define MAX_WIDTH 1024*4
+#define MAX_HEIGHT 1024*4
 
 namespace {
 struct CallbackData {
@@ -264,6 +264,14 @@ v8::Handle<v8::Value> Camera::New(const v8::Arguments& args) {
 	setValue(thisObj, "device", args[0]);
 	setValue(thisObj, "formats", Formats(camera));
 	setValue(thisObj, "controls", Controls(camera));
+
+	self->image_buffer = (unsigned char*)malloc(MAX_WIDTH * MAX_HEIGHT * 3);
+	if(self->image_buffer == NULL){
+		perror("error on malloc");
+	}
+	self->image_width = 1024;
+	self->image_height = 512;
+
 	return scope.Close(thisObj);
 }
 
@@ -319,12 +327,13 @@ void Camera::CaptureCB(uv_poll_t* handle, int /*status*/, int /*events*/) {
 	auto callCallback = [](CallbackData* data) -> void {
 		v8::HandleScope scope;
 		auto thisObj = v8::Local<v8::Object>::New(data->thisObj);
-		auto camera = node::ObjectWrap::Unwrap<Camera>(thisObj)->camera;
+		auto self = node::ObjectWrap::Unwrap<Camera>(thisObj);
+		auto camera = self->camera;
 		bool captured = camera_capture(camera);
 		v8::Local<v8::Value> argv[] = {
 			v8::Local<v8::Value>::New(v8::Boolean::New(captured)),
 		};
-		TransformToEquirectangular(camera->width, camera->height, image_width, image_height, camera->head.start, image_buffer);
+		TransformToEquirectangular(camera->width, camera->height, self->image_width, self->image_height, camera->head.start, self->image_buffer);
 		data->callback->Call(thisObj, 1, argv);
 	};
 	WatchCB(handle, callCallback);
@@ -371,11 +380,12 @@ v8::Handle<v8::Value> Camera::SetRotation(const v8::Arguments& args) {
 v8::Handle<v8::Value> Camera::SetImageSize(const v8::Arguments& args) {
 	v8::HandleScope scope;
 	auto thisObj = args.This();
-	auto camera = node::ObjectWrap::Unwrap < Camera > (thisObj)->camera;
+	auto self = node::ObjectWrap::Unwrap<Camera>(thisObj);
+	auto camera = self->camera;
 	if (args.Length() < 2)
 		throwTypeError("argument required: image size");
-	image_width = (int)args[0]->NumberValue();
-	image_height = (int)args[1]->NumberValue();
+	self->image_width = (int)args[0]->NumberValue();
+	self->image_height = (int)args[1]->NumberValue();
 	return scope.Close(thisObj);
 }
 
@@ -472,14 +482,6 @@ void Camera::Init(v8::Handle<v8::Object> exports) {
 	setMethod(proto, "controlSet", ControlSet);
 	auto ctor = v8::Local < v8::Function > ::New(clazz->GetFunction());
 	exports->Set(name, ctor);
-
-	image_buffer = (unsigned char*)malloc(MAX_WIDTH * MAX_HEIGHT * 3);
-	if(image_buffer == NULL){
-		perror("error on malloc");
-		return -1;
-	}
-	image_width = 1024;
-	image_height = 512;
 }
 }
 NODE_MODULE(picam360, Camera::Init)
