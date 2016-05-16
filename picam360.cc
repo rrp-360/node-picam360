@@ -267,10 +267,10 @@ v8::Handle<v8::Value> Camera::New(const v8::Arguments& args) {
 
 	self->image_buffer = (unsigned char*)malloc(MAX_WIDTH * MAX_HEIGHT * 3);
 	if(self->image_buffer == NULL){
-		perror("error on malloc");
+		return throwError("error on malloc");
 	}
-	self->image_width = args[0]->IsUndefined() ? 1024 : (int)args[0]->NumberValue();
-	self->image_height = args[1]->IsUndefined() ? 512 : (int)args[1]->NumberValue();
+	self->image_width = args[1]->IsUndefined() ? 1024 : (int)args[1]->NumberValue();
+	self->image_height = args[2]->IsUndefined() ? 512 : (int)args[2]->NumberValue();
 
 	return scope.Close(thisObj);
 }
