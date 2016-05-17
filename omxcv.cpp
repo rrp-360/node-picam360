@@ -96,8 +96,8 @@ OmxCvImpl::OmxCvImpl(const char *name, int width, int height, int bitrate,
 	def.format.video.eColorFormat = OMX_COLOR_Format24bitBGR888; //OMX_COLOR_Format32bitABGR8888;//OMX_COLOR_FormatYUV420PackedPlanar;
 	//Must be manually defined to ensure sufficient size if stride needs to be rounded up to multiple of 32.
 	def.nBufferSize = def.format.video.nStride * def.format.video.nSliceHeight;
-	//We allocate 6 input buffers.
-	def.nBufferCountActual = 6;
+	//We allocate 1 input buffers.
+	def.nBufferCountActual = 1;
 
 	ret = OMX_SetParameter(ILC_GET_HANDLE(m_encoder_component),
 			OMX_IndexParamPortDefinition, &def);

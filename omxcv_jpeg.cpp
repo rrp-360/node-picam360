@@ -46,8 +46,8 @@ OmxCvJpegImpl::OmxCvJpegImpl(int width, int height, int quality)
             OMX_IndexParamPortDefinition, &def);
     CHECKED(ret != OMX_ErrorNone, "OMX_GetParameter failed for encode port in.");
 
-    //We allocate 3 input buffers.
-    def.nBufferCountActual = 3;
+    //We allocate 1 input buffers.
+    def.nBufferCountActual = 1;
     def.format.image.nFrameWidth = m_width;
     def.format.image.nFrameHeight = m_height;
     //16 byte alignment. I don't know if these also hold for image encoding.
