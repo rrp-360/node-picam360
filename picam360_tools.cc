@@ -101,7 +101,7 @@ int AddFrame( const unsigned char *in_data) {
 
 int SaveJpeg(const unsigned char *in_data, const char *out_filename, int quality) {
 	if(JPEG_QUALITY != quality) {
-		JPEG_QUALITY = quality
+		JPEG_QUALITY = quality;
 		if (encoder != NULL) {
 			delete encoder;
 			encoder = NULL;
