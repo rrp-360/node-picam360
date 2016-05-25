@@ -12,7 +12,7 @@ int TransformToEquirectangular(int texture_width, int texture_height,
 int StartRecord(const char *filename, int bitrate_kbps);
 int StopRecord();
 int AddFrame(const unsigned char *in_data);
-int SaveJpeg(const unsigned char *in_data, const char *out_filename);
+int SaveJpeg(const unsigned char *in_data, const char *out_filename, int quality);
 int SetRotation(float x_deg, float y_deg, float z_deg);
 
 #ifdef __cplusplus

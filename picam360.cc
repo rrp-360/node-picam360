@@ -359,10 +359,11 @@ v8::Handle<v8::Value> Camera::ToJpeg(const v8::Arguments& args) {
 	if (args.Length() < 1) {
 		throwTypeError("argument required: filename");
 	}
-	v8::String::AsciiValue filename(args[0]->ToString());
-	if (args.Length() == 1) {
-		::SaveJpeg(self->image_buffer, *filename);
+	if (args.Length() < 2) {
+		throwTypeError("argument required: quality");
 	}
+	v8::String::AsciiValue filename(args[0]->ToString());
+	::SaveJpeg(self->image_buffer, *filename, (int)args[1]->NumberValue());
 	return scope.Close(thisObj);
 }
 
