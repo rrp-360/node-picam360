@@ -1,5 +1,5 @@
 {"name": "picam360",
- "version": "0.0.1",
+ "version": "0.0.2",
  "description": "Capturing images from picam360",
  "keywords": ["linux", "camera", "native", "picam360"],
  "homepage": "https://github.com/picam360/node-picam360", 
